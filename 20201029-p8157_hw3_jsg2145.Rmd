@@ -1,0 +1,74 @@
+---
+title: "20201029-p8157_hw3_jsg2145"
+author: "Jared Garfinkel"
+date: "10/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(viridis)
+library(lme4)
+library(geepack)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	message = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis",
+  scipen = 999
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+### Read in data
+
+```{r}
+data = read_delim(file = "./data/toenail.txt", delim = " ", col_names = c("id", "y", "treatment", "month", "visit"), skip = 1)
+
+data
+```
+
+```{r}
+df = read_delim(file = "./data/skin.txt", delim = " ", col_names = c("id", "center", "age", "skin", "gender", "exposure", "y", "tr", "year"), skip = 1) %>% 
+  mutate(tr = as_factor(tr),
+         year = as.numeric(year),
+         y = as.numeric(y),
+         age = as.numeric(age),
+         gender = as_factor(gender),
+         skin = as_factor(skin),
+         exposure = as.numeric(exposure),
+         current_age = age + year - 1)
+
+df
+```
+
+# Question 1
+
+## Part 1
+
+Setup the random effects model.
+
+```{r}
+lme1 = lmer(y ~ treatment + (month|id), data = data)
+
+summary(lme1)
+```
+## Part 2
+
+The treatment is associated with a 0.04290 times reduction in the presence of moderate to severe onycholysis under the random effects model 
+
+## Part 4
+
+compared to the generalized estimating equation model in HW2, the sign of the association changes. That is, the treatment appears to work when the random effects are included in the model, whereas the treatment appears to not work under the fixed model.
+
+# Question 2
+
+
