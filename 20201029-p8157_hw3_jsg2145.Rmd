@@ -2,7 +2,7 @@
 title: "20201029-p8157_hw3_jsg2145"
 author: "Jared Garfinkel"
 date: "10/29/2020"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -36,20 +36,6 @@ data = read_delim(file = "./data/toenail.txt", delim = " ", col_names = c("id", 
 data
 ```
 
-```{r}
-df = read_delim(file = "./data/skin.txt", delim = " ", col_names = c("id", "center", "age", "skin", "gender", "exposure", "y", "tr", "year"), skip = 1) %>% 
-  mutate(tr = as_factor(tr),
-         year = as.numeric(year),
-         y = as.numeric(y),
-         age = as.numeric(age),
-         gender = as_factor(gender),
-         skin = as_factor(skin),
-         exposure = as.numeric(exposure),
-         current_age = age + year - 1)
-
-df
-```
-
 # Question 1
 
 ## Part 1
@@ -71,4 +57,60 @@ compared to the generalized estimating equation model in HW2, the sign of the as
 
 # Question 2
 
+### Read in data
 
+```{r}
+df = read_delim(file = "./data/skin.txt", delim = " ", col_names = c("id", "center", "age", "skin", "gender", "exposure", "y", "tr", "year"), skip = 1) %>% 
+  mutate(tr = as_factor(tr),
+         year = as.numeric(year),
+         y = as.numeric(y),
+         age = as.numeric(age),
+         gender = as_factor(gender),
+         skin = as_factor(skin),
+         exposure = as.numeric(exposure),
+         current_age = age + year - 1)
+
+df
+```
+
+## Part 1
+
+```{r}
+lme2 = lmer(y ~ tr + year + (year|id), data = df)
+```
+
+## Part 2
+
+```{r}
+summary(lme2)
+```
+
+The fixed effects coefficients show that there is an increase in skin cancer on average among all patients of 0.00495 for each 1 unit increase in year.
+
+There is an increase in number of skin cancers of 0.0364 for those in treatment 1 compared to treatment 0, indicating the treatment may not be beneficial.
+
+The random effect parameter shows that $\sigma_{b2}$ = `r round(sqrt(.01128), 3)`. This means that a 95% confidence interval of the effect of year on the outcome can be calculated as ($B_1 \pm 1.96 * \sigma_{b2}$) = (`r round(.004954 - 1.96*sqrt(0.01128), 3)`, `r round(0.004954 + 1.96*sqrt(0.01128), 3)`). 
+
+Since this includes 0 in the range, we accept the null that year is not associated with the outcome of interest.
+
+## Part 3
+
+Based on these results, this study is not evidence that beta carotene is beneficial to skin health. Using both a GEE model and a random effects model, treatment with beta carotene could not be significantly associated with a change in the number of new cancer growths in patients.
+
+## Part 4
+
+```{r}
+lme3 = lmer(y ~ tr + year + skin + age + exposure + (year|id), data = df)
+```
+
+```{r}
+summary(lme3)
+```
+
+## Part 5
+
+After adjusting for skin type, age, and number of previous skin cancers recorded, there is still no evidence of a significant association between the treatment and outcome of interest. 
+
+## Part 6
+
+This is similar to the results in HW2 since it could not be shown that there was an association between beta carotene treatment and skin cancer growth.
