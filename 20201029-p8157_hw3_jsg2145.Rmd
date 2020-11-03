@@ -42,18 +42,30 @@ data
 
 Setup the random effects model.
 
+$\mu_{ij} = E[Y_{ij}|b_i]$
+
+mean response: $log\left(\frac{\mu_{ij}}{(1-\mu_{ij})}\right)$
+
+$v(\mu_{ij}) = \mu_{ij}(1-\mu_{ij})$
+
+random effects: $b_i ~ N(0, \sigma_b^2)$
+
 ```{r}
-lme1 = lmer(y ~ treatment + (month|id), data = data)
+lme1 = glmer(y ~ treatment + month + (1|id), data = data, family = binomial(link = "logit"))
 
 summary(lme1)
 ```
 ## Part 2
 
-The treatment is associated with a 0.04290 times reduction in the presence of moderate to severe onycholysis under the random effects model 
+The treatment is associated with a log-odds ratio of -0.686 in the presence of moderate to severe onycholysis comparing someone in the treatment group to someone who is not in the treatment group with identical propensity for the outcome holding other covariates constant.
+
+The month is associated with a log-odds ratio of -0.461 in the presence of moderate to severe onycholysis for each one unit increase in month for a typical individual holding other covariates constant.
+
+The intercept is the log-odds of moderate to severe onycholysis for a typical individual at month = 0, 
 
 ## Part 4
 
-compared to the generalized estimating equation model in HW2, the sign of the association changes. That is, the treatment appears to work when the random effects are included in the model, whereas the treatment appears to not work under the fixed model.
+compared to the generalized estimating equation model in HW2, the sign of the association changes. That is, the treatment appears to work when the random effects are included in the model, whereas the treatment appears to not work under the linear effects model.
 
 # Question 2
 
@@ -76,7 +88,7 @@ df
 ## Part 1
 
 ```{r}
-lme2 = lmer(y ~ tr + year + (year|id), data = df)
+lme2 = glmer(y ~ tr + year + (1|id), data = df, family = poisson(link = "log"))
 ```
 
 ## Part 2
@@ -85,22 +97,20 @@ lme2 = lmer(y ~ tr + year + (year|id), data = df)
 summary(lme2)
 ```
 
-The fixed effects coefficients show that there is an increase in skin cancer on average among all patients of 0.00495 for each 1 unit increase in year.
+The fixed effects coefficients show that there is a log rate ratio of 0.1731 for a typical individual comparing someone in the treatment group with someone not in the treatment group with identical propensity for the outcome holding other covariates constant.
 
-There is an increase in number of skin cancers of 0.0364 for those in treatment 1 compared to treatment 0, indicating the treatment may not be beneficial.
+There is a log rate ratio increase in the number of skin cancers of 0.0183 for a typical individual for a one unit increase in year for a typical individual in the treament group.
 
-The random effect parameter shows that $\sigma_{b2}$ = `r round(sqrt(.01128), 3)`. This means that a 95% confidence interval of the effect of year on the outcome can be calculated as ($B_1 \pm 1.96 * \sigma_{b2}$) = (`r round(.004954 - 1.96*sqrt(0.01128), 3)`, `r round(0.004954 + 1.96*sqrt(0.01128), 3)`). 
-
-Since this includes 0 in the range, we accept the null that year is not associated with the outcome of interest.
+The intercept of -2.46 is the log rate of new growths of cancer for a typical individual at year = 0 in the non-treatment group.
 
 ## Part 3
 
-Based on these results, this study is not evidence that beta carotene is beneficial to skin health. Using both a GEE model and a random effects model, treatment with beta carotene could not be significantly associated with a change in the number of new cancer growths in patients.
+Based on these results, this study is not evidence that beta carotene is beneficial to skin health. Using both a GEE model and a random effects model, treatment with beta carotene could not be significantly associated with a change in the number of new cancer growths in patients in a population based inference or an individual based inference.
 
 ## Part 4
 
 ```{r}
-lme3 = lmer(y ~ tr + year + skin + age + exposure + (year|id), data = df)
+lme3 = glmer(y ~ tr + year + skin + age + exposure + (1|id), data = df, family = poisson(link = "log"))
 ```
 
 ```{r}
@@ -113,4 +123,4 @@ After adjusting for skin type, age, and number of previous skin cancers recorded
 
 ## Part 6
 
-This is similar to the results in HW2 since it could not be shown that there was an association between beta carotene treatment and skin cancer growth.
+This is similar to the results in HW2 since it could not be shown that there was an association between beta carotene treatment and skin cancer growth either in population based inference nor individual based inference.
